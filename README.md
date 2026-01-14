@@ -1,4 +1,4 @@
-# 🛡️ CipherPixel PRO(BitMask)
+# 🛡️ CipherPixel PRO
 ### Client-Side Image Steganography & Encryption Tool
 
 ![Project Status](https://img.shields.io/badge/Status-Active-brightgreen)
