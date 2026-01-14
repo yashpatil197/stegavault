@@ -17,10 +17,6 @@ body {
     flex-direction: column;
 }
 
-/* UTILITIES */
-.hidden { display: none !important; }
-.hidden-card { display: none; } /* Used for toggling specific cards */
-
 /* NAVBAR */
 nav {
     width: 100%;
