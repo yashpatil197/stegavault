@@ -5,45 +5,68 @@ let secretFileLoaded = false;
 let secretFileBuffer = null;
 let secretFileName = "";
 
-// --- NAVIGATION & TABS ---
+// --- INITIALIZATION ---
+// Force correct state when page loads
+window.onload = function() {
+    document.getElementById('landing-page').style.display = 'flex';
+    document.getElementById('app-container').style.display = 'none';
+    document.getElementById('navbar').style.display = 'none';
+    
+    // Default tab state
+    switchTab('text');
+}
+
+// --- NAVIGATION LOGIC ---
 
 function showApp(action) {
-    document.getElementById('landing-page').classList.add('hidden');
-    document.getElementById('app-container').classList.remove('hidden');
-    document.getElementById('navbar').classList.remove('hidden');
+    // 1. Hide Landing Page
+    document.getElementById('landing-page').style.display = 'none';
+    
+    // 2. Show App Container & Navbar
+    document.getElementById('app-container').style.display = 'flex';
+    document.getElementById('navbar').style.display = 'flex';
 
-    document.getElementById('card-encode').classList.add('hidden-card');
-    document.getElementById('card-decode').classList.add('hidden-card');
+    // 3. Reset Cards (Hide Both)
+    document.getElementById('card-encode').style.display = 'none';
+    document.getElementById('card-decode').style.display = 'none';
 
+    // 4. Show Selected Card
     if(action === 'encode') {
-        document.getElementById('card-encode').classList.remove('hidden-card');
         document.getElementById('card-encode').style.display = 'flex';
     } else {
-        document.getElementById('card-decode').classList.remove('hidden-card');
         document.getElementById('card-decode').style.display = 'flex';
     }
 }
 
 function goHome() {
+    // Simple reload to reset everything
     location.reload();
 }
 
 function switchTab(selectedMode) {
     mode = selectedMode;
     
-    // UI Updates
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+    // 1. Update Buttons Visuals
+    const textBtn = document.querySelectorAll('.tab-btn')[0];
+    const fileBtn = document.querySelectorAll('.tab-btn')[1];
 
-    if (mode === 'text') {
-        document.getElementById('input-text-section').classList.remove('hidden');
-        document.getElementById('input-file-section').classList.add('hidden');
+    if(mode === 'text') {
+        textBtn.classList.add('active');
+        fileBtn.classList.remove('active');
+        
+        // 2. Force Show/Hide Inputs
+        document.getElementById('input-text-section').style.display = 'block';
+        document.getElementById('input-file-section').style.display = 'none';
     } else {
-        document.getElementById('input-text-section').classList.add('hidden');
-        document.getElementById('input-file-section').classList.remove('hidden');
+        fileBtn.classList.add('active');
+        textBtn.classList.remove('active');
+
+        // 2. Force Show/Hide Inputs
+        document.getElementById('input-text-section').style.display = 'none';
+        document.getElementById('input-file-section').style.display = 'block';
     }
     
-    checkCapacity(); // Re-calculate capacity based on new mode
+    checkCapacity();
 }
 
 
@@ -58,7 +81,7 @@ document.getElementById('upload-secret').addEventListener('change', function(e) 
     secretFileName = file.name;
     const reader = new FileReader();
     reader.onload = function(evt) {
-        secretFileBuffer = evt.target.result; // ArrayBuffer
+        secretFileBuffer = evt.target.result;
         secretFileLoaded = true;
         document.getElementById('file-info').innerText = `Selected: ${file.name} (${formatBytes(file.size)})`;
         checkCapacity();
@@ -100,7 +123,6 @@ function checkCapacity() {
     if (mode === 'text') {
         const text = document.getElementById('secret-text').value;
         if(text.length === 0) return;
-        // Text length * 8 bits + Overhead for header
         requiredBits = (text.length * 8) + 800; 
     } else {
         if (!secretFileLoaded) return;
@@ -133,8 +155,7 @@ function formatBytes(bytes) {
 }
 
 
-// --- CORE ENGINE ---
-// We unify Text and File handling by converting Text to Uint8Array (bytes) first.
+// --- CORE ENGINE (Unified) ---
 
 document.getElementById('encode-btn').addEventListener('click', encodeProcess);
 document.getElementById('decode-btn').addEventListener('click', decodeProcess);
@@ -152,35 +173,29 @@ function encodeProcess() {
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const pixels = imgData.data;
 
-    // 1. PREPARE PAYLOAD (Convert everything to Bytes)
     let payloadBuffer;
-    let typeHeader = ""; // 'txt' or 'file'
+    let typeHeader = ""; 
     let nameHeader = ""; 
 
     if (mode === 'text') {
         const text = document.getElementById('secret-text').value;
         const encoder = new TextEncoder();
-        payloadBuffer = encoder.encode(text); // Converts string to Uint8Array
+        payloadBuffer = encoder.encode(text);
         typeHeader = "txt";
-        nameHeader = "msg"; // Dummy name for text
+        nameHeader = "msg"; 
     } else {
         payloadBuffer = new Uint8Array(secretFileBuffer);
         typeHeader = "file";
         nameHeader = secretFileName;
     }
 
-    // 2. CREATE HEADER: type|name|length|
     const header = `${typeHeader}|${nameHeader}|${payloadBuffer.length}|`;
-    
-    // 3. ENCRYPT & BUILD BINARY STREAM
     let binaryStream = "";
     
-    // Convert Header to binary
     for (let i = 0; i < header.length; i++) {
         binaryStream += header.charCodeAt(i).toString(2).padStart(8, '0');
     }
 
-    // Convert Payload to binary (with XOR Encryption)
     for (let i = 0; i < payloadBuffer.length; i++) {
         let byte = payloadBuffer[i];
         if(password) {
@@ -189,18 +204,15 @@ function encodeProcess() {
         binaryStream += byte.toString(2).padStart(8, '0');
     }
 
-    // 4. EMBED IN PIXELS
     let dataIndex = 0;
     for (let i = 0; i < binaryStream.length; i++) {
-        if ((dataIndex + 1) % 4 === 0) dataIndex++; // Skip Alpha
-        
+        if ((dataIndex + 1) % 4 === 0) dataIndex++; 
         let bit = binaryStream[i];
         pixels[dataIndex] = (pixels[dataIndex] & 254) | parseInt(bit);
         dataIndex++;
     }
 
     ctx.putImageData(imgData, 0, 0);
-    
     const link = document.createElement('a');
     link.download = 'stegavault_secure.png';
     link.href = canvas.toDataURL("image/png");
@@ -229,7 +241,6 @@ function decodeProcess() {
     let metadataRead = false;
     let pixelIdx = 0;
 
-    // 1. EXTRACT HEADER (Look for 3 pipes: type|name|size|)
     while (!metadataRead && pixelIdx < pixels.length) {
         if ((pixelIdx + 1) % 4 === 0) pixelIdx++;
         binaryStream += (pixels[pixelIdx] & 1).toString();
@@ -243,10 +254,8 @@ function decodeProcess() {
             if (char === '|') {
                 headerParts.push(extractedChars.slice(0, -1));
                 extractedChars = "";
-                
-                // We expect 3 parts: type, name, size
                 if (headerParts.length === 3) {
-                    type = headerParts[0]; // 'txt' or 'file'
+                    type = headerParts[0]; 
                     fileName = headerParts[1];
                     payloadLen = parseInt(headerParts[2]);
                     metadataRead = true;
@@ -255,7 +264,6 @@ function decodeProcess() {
         }
     }
 
-    // 2. EXTRACT PAYLOAD BYTES
     const resultBytes = new Uint8Array(payloadLen);
     let currentByte = 0;
     binaryStream = ""; 
@@ -274,25 +282,21 @@ function decodeProcess() {
         }
     }
 
-    // 3. DISPLAY RESULT BASED ON TYPE
     document.getElementById('result-area').style.display = 'block';
     const textResult = document.getElementById('text-result');
     const fileResult = document.getElementById('file-result');
 
-    // Hide both initially
-    textResult.classList.add('hidden');
-    fileResult.classList.add('hidden');
+    textResult.style.display = 'none';
+    fileResult.style.display = 'none';
 
     if (type === 'txt') {
-        // Decode bytes back to string
         const decoder = new TextDecoder();
         const decodedText = decoder.decode(resultBytes);
         textResult.innerText = decodedText;
-        textResult.classList.remove('hidden');
+        textResult.style.display = 'block';
     } else {
-        // Handle File Download
         document.getElementById('found-filename').innerText = fileName;
-        fileResult.classList.remove('hidden');
+        fileResult.style.display = 'block';
         
         document.getElementById('download-secret-btn').onclick = function() {
             const blob = new Blob([resultBytes], {type: "application/octet-stream"});
