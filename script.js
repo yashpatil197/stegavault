@@ -12,21 +12,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- NAVIGATION FUNCTIONS ---
     window.showApp = function(mode) {
+        // 1. Hide Landing, Show App Container
         landingPage.classList.add('hidden');
         appContainer.classList.remove('hidden');
         navbar.classList.remove('hidden');
         
-        document.getElementById('card-encode').classList.add('hidden-card');
-        document.getElementById('card-decode').classList.add('hidden-card');
+        // 2. Reset Theme Colors
+        document.body.classList.remove('mode-encrypt', 'mode-decrypt');
+        
+        // 3. Get Card Elements
+        const cardEncode = document.getElementById('card-encode');
+        const cardDecode = document.getElementById('card-decode');
 
-        if (mode === 'encode') document.getElementById('card-encode').classList.remove('hidden-card');
-        else document.getElementById('card-decode').classList.remove('hidden-card');
+        // 4. CRITICAL: Force Hide BOTH cards first
+        cardEncode.classList.add('hidden-card');
+        cardDecode.classList.add('hidden-card');
+        
+        // 5. Show only the requested one
+        if (mode === 'encode') {
+            cardEncode.classList.remove('hidden-card'); // Show Encode
+            document.body.classList.add('mode-encrypt');
+        } else {
+            cardDecode.classList.remove('hidden-card'); // Show Decode
+            document.body.classList.add('mode-decrypt');
+        }
     };
 
     window.goHome = function() {
         landingPage.classList.remove('hidden');
         appContainer.classList.add('hidden');
         navbar.classList.add('hidden');
+        document.body.classList.remove('mode-encrypt', 'mode-decrypt');
         resetAll();
     };
 
@@ -43,10 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('input-file-section').classList.remove('hidden');
         }
         checkCapacity();
-    };
-
-    window.toggleTheme = function() {
-        document.body.classList.toggle('hacker-mode');
     };
 
     // --- FILE UPLOADS ---
@@ -107,10 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkCapacity() {
         if (!coverImage) return;
-
-        // Max capacity (3 bits per pixel approx for this demo)
         const maxBytes = (coverImage.width * coverImage.height * 3) / 8;
-        
         let usedBytes = 0;
         if (currentMode === 'text') {
             usedBytes = document.getElementById('secret-text').value.length;
@@ -124,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('capacity-text').innerText = `${percentage.toFixed(2)}% Capacity Used`;
         
         if (percentage > 90) fill.style.backgroundColor = 'red';
-        else fill.style.backgroundColor = 'var(--success-color)';
+        else fill.style.backgroundColor = 'var(--primary-color)';
     }
 
     // --- ENCODING LOGIC ---
