@@ -71,7 +71,7 @@ nav {
     top: 0;
     z-index: 100;
 }
-.logo { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px; cursor: pointer; color: white; }
+.logo { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px; cursor: pointer; color: white; white-space: nowrap; }
 .logo span { color: var(--primary-color); text-shadow: 0 0 15px var(--accent-glow); transition: color 0.4s; }
 
 .btn-nav {
@@ -86,6 +86,7 @@ nav {
     display: flex;
     align-items: center;
     gap: 8px;
+    white-space: nowrap;
 }
 .btn-nav:hover { background: rgba(255,255,255,0.1); border-color: var(--primary-color); color: var(--primary-color); }
 
@@ -105,7 +106,7 @@ nav {
 .hero-desc { color: var(--text-muted); font-size: 1.2rem; max-width: 500px; margin-bottom: 60px; line-height: 1.6; }
 .highlight { color: var(--primary-color); text-shadow: 0 0 20px var(--accent-glow); }
 
-.choice-container { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; }
+.choice-container { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; width: 100%; }
 
 .choice-card {
     background: var(--glass-bg);
@@ -118,6 +119,8 @@ nav {
     transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
     text-align: center;
     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    /* Make card flexible but limit width */
+    max-width: 100%;
 }
 
 .choice-card:hover {
@@ -148,7 +151,7 @@ nav {
 }
 
 .card-header { text-align: center; margin-bottom: 30px; }
-.card-header h2 { font-size: 2rem; margin: 0; color: var(--primary-color); text-shadow: 0 0 20px var(--accent-glow); display: flex; align-items: center; justify-content: center; gap: 10px; }
+.card-header h2 { font-size: 2rem; margin: 0; color: var(--primary-color); text-shadow: 0 0 20px var(--accent-glow); display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;}
 .step-desc { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; display: block; }
 
 /* --- INPUTS & ZONES --- */
@@ -201,9 +204,9 @@ textarea:focus, input[type="password"]:focus { outline: none; border-color: var(
 .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
 .btn-outline:hover { border-color: var(--primary-color); background: rgba(255,255,255,0.05); }
 
-.btn-success { background: #10b981; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; margin-top: 10px; border: none; cursor: pointer; }
+.btn-success { background: #10b981; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 600; margin-top: 10px; border: none; cursor: pointer; width: 100%; box-sizing: border-box; text-align: center;}
 
-.btn-small { padding: 8px 15px; font-size: 0.85rem; border: 1px solid var(--primary-color); background: rgba(0,0,0,0.3); color: var(--primary-color); border-radius: 8px; cursor: pointer; margin-top: 5px; }
+.btn-small { padding: 8px 15px; font-size: 0.85rem; border: 1px solid var(--primary-color); background: rgba(0,0,0,0.3); color: var(--primary-color); border-radius: 8px; cursor: pointer; margin-top: 5px; width: 100%; }
 .btn-small:hover { background: var(--primary-color); color: white; }
 
 /* --- RESULT AREA --- */
@@ -218,7 +221,7 @@ textarea:focus, input[type="password"]:focus { outline: none; border-color: var(
 
 /* --- COMPARISON SLIDER --- */
 .comparison-wrapper { margin-top: 30px; }
-.img-comp-container { position: relative; height: 300px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+.img-comp-container { position: relative; height: 300px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); width: 100%; }
 .img-comp-img { position: absolute; width: 100%; height: 100%; overflow: hidden; }
 .img-comp-img img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .img-comp-slider {
@@ -227,6 +230,9 @@ textarea:focus, input[type="password"]:focus { outline: none; border-color: var(
     display: flex; align-items: center; justify-content: center; color: white;
     top: 50%; left: 50%; transform: translate(-50%, -50%);
     box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    /* Prevent touch selecting */
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 /* --- ANIMATIONS & UTILS --- */
@@ -240,8 +246,45 @@ textarea:focus, input[type="password"]:focus { outline: none; border-color: var(
 .alert-box {
     background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3);
     color: #fcd34d; padding: 15px; border-radius: 12px; font-size: 0.9rem; margin-top: 20px;
-    display: flex; align-items: center; gap: 12px;
+    display: flex; align-items: center; gap: 12px; flex-direction: column; text-align: center;
 }
+.alert-box i { font-size: 1.5rem; margin-bottom: 5px; }
 
 /* === CRITICAL FIX: Ensures cards are hidden === */
 .hidden-card { display: none !important; }
+
+/* =========================================
+   MEDIA QUERIES (RESPONSIVENESS)
+   ========================================= */
+
+/* Tablets & Small Laptops (max-width: 768px) */
+@media (max-width: 768px) {
+    .hero-title { font-size: 3rem; }
+    .hero-desc { font-size: 1rem; padding: 0 20px; }
+    .choice-container { gap: 20px; }
+    .choice-card { width: 100%; max-width: 350px; padding: 30px; }
+    .container { width: 95%; margin: 20px auto; }
+}
+
+/* Mobile Devices (max-width: 480px) */
+@media (max-width: 480px) {
+    nav { padding: 1rem 1.5rem; }
+    .logo { font-size: 1.2rem; }
+    
+    .hero-title { font-size: 2.5rem; margin-top: 20px; }
+    .hero-desc { margin-bottom: 30px; }
+    
+    .choice-card { width: 100%; }
+    .icon-box { font-size: 3rem; }
+    
+    .card { padding: 20px; }
+    .card-header h2 { font-size: 1.5rem; }
+    
+    .drop-zone { padding: 20px 10px; }
+    .img-comp-container { height: 250px; } /* Smaller height for mobile */
+    
+    .tab-btn { font-size: 0.9rem; padding: 10px; }
+    
+    /* Stack comparison slider text */
+    .alert-box { font-size: 0.8rem; }
+}
