@@ -7,11 +7,10 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="light-mode"> <nav id="navbar" class="hidden">
+<body> <nav id="navbar" class="hidden">
         <div class="logo" onclick="goHome()">CipherPixel <span class="badge"> PRO</span></div>
         <div class="nav-controls">
-            <button class="btn-icon" onclick="toggleTheme()" title="Toggle Hacker Mode"><i class="fas fa-terminal"></i></button>
-            <button class="btn-outline" onclick="goHome()"><i class="fas fa-home"></i> Home</button>
+            <button class="btn-nav" onclick="goHome()"><i class="fas fa-home"></i> Home</button>
         </div>
     </nav>
 
@@ -150,7 +149,6 @@
     </div>
 
     <canvas id="canvas" style="display:none;"></canvas>
-    
     <script src="script.js"></script>
 </body>
 </html>
