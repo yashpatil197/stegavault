@@ -7,11 +7,12 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
-
-    <nav id="navbar" class="hidden">
+<body class="light-mode"> <nav id="navbar" class="hidden">
         <div class="logo" onclick="goHome()">CipherPixel <span class="badge"> PRO</span></div>
-        <button class="btn-outline" onclick="goHome()"><i class="fas fa-home"></i> Home</button>
+        <div class="nav-controls">
+            <button class="btn-icon" onclick="toggleTheme()" title="Toggle Hacker Mode"><i class="fas fa-terminal"></i></button>
+            <button class="btn-outline" onclick="goHome()"><i class="fas fa-home"></i> Home</button>
+        </div>
     </nav>
 
     <section id="landing-page">
@@ -47,8 +48,9 @@
                 <p>1. Upload <b>Cover Image</b> (PNG/JPG)</p>
                 <input type="file" id="upload-cover" accept="image/*" hidden>
                 <button class="btn-outline" onclick="document.getElementById('upload-cover').click()">Select Image</button>
+                <p class="warning-text"><i class="fas fa-shield-alt"></i> EXIF Metadata will be stripped for privacy.</p>
             </div>
-            <img id="preview-cover" class="preview-img">
+            <img id="preview-cover" class="preview-img hidden">
 
             <div class="separator">⬇ WHAT TO HIDE? ⬇</div>
 
@@ -67,21 +69,45 @@
                     <input type="file" id="upload-secret" hidden>
                     <button class="btn-outline" onclick="document.getElementById('upload-secret').click()">Select File</button>
                 </div>
-                <div id="file-info" class="info-tag"></div>
+                <div id="file-info" class="info-tag hidden"></div>
             </div>
 
             <div class="input-group">
                 <label>3. Encryption Key (Optional)</label>
                 <input type="password" id="pass-encode" placeholder="Create a password">
-            <div id="strength-meter" class="hidden">
-                <div class="strength-bar"><div id="strength-fill"></div></div>
-                <p id="crack-time">Time to crack: <span id="time-text">...</span></p>
+                <div id="strength-meter" class="hidden">
+                    <div class="strength-bar"><div id="strength-fill"></div></div>
+                </div>
             </div>
-           </div>
 
             <button id="encode-btn" class="btn-primary" disabled>Process & Download</button>
+            
             <div id="capacity-bar"><div id="capacity-fill"></div></div>
             <p id="capacity-text">0% Capacity Used</p>
+
+            <div id="encode-result" class="hidden">
+                <div class="separator">✔ ENCRYPTION SUCCESSFUL</div>
+                
+                <div class="comparison-wrapper">
+                    <div class="img-comp-container">
+                        <div class="img-comp-img">
+                            <img id="comp-encoded" src=""> </div>
+                        <div class="img-comp-img img-comp-overlay">
+                            <img id="comp-original" src=""> </div>
+                        <div class="img-comp-slider"><i class="fas fa-arrows-alt-h"></i></div>
+                    </div>
+                    <p class="note">Slide to check for visual artifacts.</p>
+                </div>
+
+                <div class="download-section">
+                    <a id="download-link" class="btn-success" download="secret_image.png">Download Image</a>
+                </div>
+                
+                <div class="alert-box">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span><b>Do not compress!</b> Send this as a "File/Document" on WhatsApp/Telegram. Standard photo sharing will destroy the hidden data.</span>
+                </div>
+            </div>
         </div>
 
         <div id="card-decode" class="card hidden-card">
@@ -94,7 +120,13 @@
                 <input type="file" id="upload-decode" accept="image/png" hidden>
                 <button class="btn-outline" onclick="document.getElementById('upload-decode').click()">Select Image</button>
             </div>
-            <img id="preview-decode" class="preview-img">
+            
+            <div class="preview-container">
+                <img id="preview-decode" class="preview-img hidden">
+                <button id="btn-steg-vision" class="btn-small hidden" onclick="toggleStegVision()">
+                    <i class="fas fa-eye"></i> Steg-Vision (LSB View)
+                </button>
+            </div>
 
             <div class="input-group">
                 <label>2. Decryption Key</label>
@@ -103,13 +135,13 @@
 
             <button id="decode-btn" class="btn-primary" disabled>Reveal Secrets</button>
             
-            <div id="result-area" class="result-box">
-                <p id="result-title" style="color:#aaa; font-size:0.8rem;">CONTENT FOUND:</p>
+            <div id="result-area" class="result-box hidden">
+                <p id="result-title">CONTENT FOUND:</p>
                 
                 <div id="text-result" class="code-block hidden"></div>
                 
                 <div id="file-result" class="hidden">
-                    <p>File: <b id="found-filename" style="color:white;">...</b></p>
+                    <p>File: <b id="found-filename">...</b></p>
                     <button id="download-secret-btn" class="btn-success">Download File</button>
                 </div>
             </div>
@@ -117,7 +149,8 @@
 
     </div>
 
-    <canvas id="canvas"></canvas>
+    <canvas id="canvas" style="display:none;"></canvas>
+    
     <script src="script.js"></script>
 </body>
 </html>
